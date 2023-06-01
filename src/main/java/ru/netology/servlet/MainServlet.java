@@ -9,6 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class MainServlet extends HttpServlet {
+
+  private final String GET = "GET";
+  private final String POST = "POST";
+  private final String DELETE = "DELETE";
+  private final String PATH = "/api/posts";
+  private final String PATH_WITH_NUMBER = "/api/posts/\\d+";
   private PostController controller;
 
   @Override
@@ -20,28 +26,28 @@ public class MainServlet extends HttpServlet {
 
   @Override
   protected void service(HttpServletRequest req, HttpServletResponse resp) {
-    // если деплоились в root context, то достаточно этого
+
     try {
       final var path = req.getRequestURI();
       final var method = req.getMethod();
-      // primitive routing
-      if (method.equals("GET") && path.equals("/api/posts")) {
+
+      if (method.equals(GET) && path.equals(PATH)) {
         controller.all(resp);
         return;
       }
-      if (method.equals("GET") && path.matches("/api/posts/\\d+")) {
-        // easy way
-        final var id = Long.parseLong(path.substring(path.lastIndexOf("/") + 1));
+      if (method.equals(GET) && path.matches(PATH_WITH_NUMBER)) {
+
+        final var id = parseNumber(path);
         controller.getById(id, resp);
         return;
       }
-      if (method.equals("POST") && path.equals("/api/posts")) {
+      if (method.equals(POST) && path.equals(PATH)) {
         controller.save(req.getReader(), resp);
         return;
       }
-      if (method.equals("DELETE") && path.matches("/api/posts/\\d+")) {
-        // easy way
-        final var id = Long.parseLong(path.substring(path.lastIndexOf("/") + 1));
+      if (method.equals(DELETE) && path.matches(PATH_WITH_NUMBER)) {
+
+        final var id = parseNumber(path);
         controller.removeById(id, resp);
         return;
       }
@@ -50,6 +56,10 @@ public class MainServlet extends HttpServlet {
       e.printStackTrace();
       resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private static Long parseNumber(String path){
+    return Long.parseLong(path.substring(path.lastIndexOf("/") + 1));
   }
 }
 

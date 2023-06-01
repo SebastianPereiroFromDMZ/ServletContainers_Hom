@@ -26,10 +26,10 @@ public class PostRepository {
 
   public Post save(Post post) {
     long postExistingID = post.getId();
+
     if (postExistingID > 0 && posts.containsKey(postExistingID)) {
       posts.replace(postExistingID, post);
     } else {
-      // Specify postID.
       long newPostID = postExistingID == 0 ? id.incrementAndGet() : postExistingID;
       post.setId(newPostID);
       posts.put(newPostID, post);
